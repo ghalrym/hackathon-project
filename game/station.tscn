@@ -1,0 +1,102 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/station.gd" id="1_station"]
+[ext_resource type="PackedScene" path="res://assets/models/station.glb" id="2_model"]
+[ext_resource type="AudioStream" path="res://assets/audio/hangar-air.ogg" id="3_air"]
+
+[node name="Station" type="Node3D"]
+script = ExtResource("1_station")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+
+[node name="BayReflection" type="ReflectionProbe" parent="."]
+position = Vector3(0, 4.5, -4)
+size = Vector3(42, 16, 130)
+box_projection = true
+cull_mask = 1
+intensity = 0.86
+max_distance = 150.0
+
+[node name="Ventilation" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_air")
+volume_db = -14.0
+unit_size = 24.0
+max_distance = 92.0
+panning_strength = 0.15
+bus = &"SFX"
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="Bay1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 44)
+light_color = Color(0.85, 0.93, 1, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 0.4
+omni_range = 36.0
+
+[node name="Bay2" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, 20)
+light_color = Color(0.85, 0.93, 1, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 0.4
+omni_range = 36.0
+
+[node name="Bay3" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, -4)
+light_color = Color(0.85, 0.93, 1, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 0.4
+omni_range = 36.0
+
+[node name="Bay4" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, -28)
+light_color = Color(0.85, 0.93, 1, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 0.4
+omni_range = 36.0
+
+[node name="Bay5" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.5, -52)
+light_color = Color(0.85, 0.93, 1, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 0.4
+omni_range = 36.0
+
+[node name="Pad" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 12.5, 0)
+light_color = Color(1, 0.9, 0.75, 1)
+light_energy = 8.0
+light_volumetric_fog_energy = 1.5
+shadow_enabled = true
+spot_range = 18.0
+spot_angle = 32.0
+
+[node name="ControlRoom" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.5, 8, 1)
+light_color = Color(1, 0.78, 0.48, 1)
+light_energy = 2.0
+omni_range = 14.0
+
+[node name="ServiceLamp" type="SpotLight3D" parent="Lights"]
+position = Vector3(2.7, 4.4, -2.6)
+rotation = Vector3(-0.85, 2.35, 0)
+light_color = Color(1, 0.89, 0.75, 1)
+light_energy = 8.0
+light_volumetric_fog_energy = 0.12
+shadow_enabled = true
+spot_range = 11.0
+spot_angle = 46.0
+
+[node name="Entrance" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 60)
+light_color = Color(0.25, 0.85, 1, 1)
+light_energy = 4.0
+light_volumetric_fog_energy = 2.0
+omni_range = 40.0
+
+[node name="Exit" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, -82)
+light_color = Color(0.25, 0.85, 1, 1)
+light_energy = 4.0
+light_volumetric_fog_energy = 2.0
+omni_range = 40.0

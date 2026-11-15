@@ -1,0 +1,5 @@
+Lunar surface imagery and elevation from NASA's Scientific Visualization Studio CGI Moon Kit, Ernie Wright.
+LROC WAC color mosaic: NASA/Goddard Space Flight Center/Arizona State University.
+LOLA elevation data: NASA/Goddard Space Flight Center/Massachusetts Institute of Technology.
+https://svs.gsfc.nasa.gov/4720/
+lunar-albedo.jpg is the supplied 2K LROC color map. lunar-relief.jpg is a tangent-space normal map derived from the 3-pixels-per-degree LOLA elevation map.

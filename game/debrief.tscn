@@ -1,0 +1,221 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/debrief.gd" id="1_debrief"]
+
+[sub_resource type="Gradient" id="Gradient_vignette"]
+offsets = PackedFloat32Array(0.0, 0.55, 1.0)
+colors = PackedColorArray(0.012, 0.016, 0.039, 0.55, 0.012, 0.016, 0.039, 0.72, 0.012, 0.016, 0.039, 0.92)
+
+[sub_resource type="GradientTexture2D" id="Vignette"]
+gradient = SubResource("Gradient_vignette")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1.05, 0.5)
+
+[node name="Debrief" type="Control"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1_debrief")
+
+[node name="Vignette" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = SubResource("Vignette")
+expand_mode = 1
+
+[node name="Card" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="Card"]
+oversampling_with_scale = true
+theme_type_variation = &"DebriefTitle"
+text = "SHIP DESTROYED"
+horizontal_alignment = 1
+
+[node name="Accent" type="ColorRect" parent="Card"]
+custom_minimum_size = Vector2(56, 2)
+size_flags_horizontal = 4
+mouse_filter = 2
+color = Color(1, 0.26, 0.22, 0.7)
+
+[node name="Gap1" type="Control" parent="Card"]
+custom_minimum_size = Vector2(0, 34)
+mouse_filter = 2
+
+[node name="ScoreCaption" type="Label" parent="Card"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "SCORE"
+horizontal_alignment = 1
+
+[node name="Score" type="Label" parent="Card"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefScore"
+text = "0"
+horizontal_alignment = 1
+
+[node name="Record" type="CenterContainer" parent="Card"]
+custom_minimum_size = Vector2(0, 26)
+mouse_filter = 2
+
+[node name="NewBest" type="Label" parent="Card/Record"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefRecord"
+text = "NEW BEST"
+
+[node name="Best" type="Label" parent="Card/Record"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"LaunchHint"
+text = "Best 0"
+
+[node name="Gap2" type="Control" parent="Card"]
+custom_minimum_size = Vector2(0, 30)
+mouse_filter = 2
+
+[node name="Stats" type="HBoxContainer" parent="Card"]
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 28
+
+[node name="Time" type="VBoxContainer" parent="Card/Stats"]
+custom_minimum_size = Vector2(120, 0)
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Card/Stats/Time"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "TIME"
+horizontal_alignment = 1
+
+[node name="TimeValue" type="Label" parent="Card/Stats/Time"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefStat"
+text = "0:00"
+horizontal_alignment = 1
+
+[node name="Rule1" type="ColorRect" parent="Card/Stats"]
+custom_minimum_size = Vector2(1, 0)
+mouse_filter = 2
+color = Color(0.37, 0.88, 1, 0.22)
+
+[node name="Stations" type="VBoxContainer" parent="Card/Stats"]
+custom_minimum_size = Vector2(120, 0)
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Card/Stats/Stations"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "STATIONS"
+horizontal_alignment = 1
+
+[node name="StationsValue" type="Label" parent="Card/Stats/Stations"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefStat"
+text = "0"
+horizontal_alignment = 1
+
+[node name="Rule2" type="ColorRect" parent="Card/Stats"]
+custom_minimum_size = Vector2(1, 0)
+mouse_filter = 2
+color = Color(0.37, 0.88, 1, 0.22)
+
+[node name="Raiders" type="VBoxContainer" parent="Card/Stats"]
+custom_minimum_size = Vector2(120, 0)
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Card/Stats/Raiders"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "RAIDERS"
+horizontal_alignment = 1
+
+[node name="RaidersValue" type="Label" parent="Card/Stats/Raiders"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefStat"
+text = "0"
+horizontal_alignment = 1
+
+[node name="Rule3" type="ColorRect" parent="Card/Stats"]
+custom_minimum_size = Vector2(1, 0)
+mouse_filter = 2
+color = Color(0.37, 0.88, 1, 0.22)
+
+[node name="Ship" type="VBoxContainer" parent="Card/Stats"]
+custom_minimum_size = Vector2(120, 0)
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Card/Stats/Ship"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "SHIP"
+horizontal_alignment = 1
+
+[node name="ShipValue" type="Label" parent="Card/Stats/Ship"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"DebriefStat"
+text = "DELTA"
+horizontal_alignment = 1
+
+[node name="UpgradesGap" type="Control" parent="Card"]
+custom_minimum_size = Vector2(0, 26)
+mouse_filter = 2
+
+[node name="Upgrades" type="Label" parent="Card"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+mouse_filter = 2
+theme_type_variation = &"LaunchCaption"
+text = "UPGRADES  NONE"
+horizontal_alignment = 1
+
+[node name="Gap3" type="Control" parent="Card"]
+custom_minimum_size = Vector2(0, 44)
+mouse_filter = 2
+
+[node name="Actions" type="HBoxContainer" parent="Card"]
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Retry" type="Button" parent="Card/Actions"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 48)
+theme_type_variation = &"LaunchButton"
+text = "FLY AGAIN"
+
+[node name="ChangeShip" type="Button" parent="Card/Actions"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 48)
+text = "CHANGE SHIP"
+
+[node name="Hint" type="Label" parent="Card"]
+oversampling_with_scale = true
+custom_minimum_size = Vector2(0, 36)
+theme_type_variation = &"LaunchTip"
+text = "or click anywhere"
+horizontal_alignment = 1
+vertical_alignment = 2
+
+[node name="VolumeSlot" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+mouse_filter = 2

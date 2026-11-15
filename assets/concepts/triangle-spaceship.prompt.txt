@@ -1,0 +1,9 @@
+Generated using the built-in image generator.
+
+Use case: stylized-concept
+Asset type: spaceship design concept for a hackathon video game
+Primary request: Design one distinctive triangle-shaped spaceship. Its entire hull has a strong, simple triangular delta silhouette with a pointed front and broad straight rear; bilateral symmetry, compact integrated cockpit, angular armor panels, and clearly visible rear engine nozzles. Make the silhouette easy to recognize at small game scale.
+Style/medium: polished stylized science-fiction game concept art, crisp forms, restrained surface detailing, believable depth and materials.
+Composition/framing: one ship only, centered and fully visible with generous margin, nose pointing toward the top, near top-down view that clearly shows the triangle shape.
+Scene/backdrop: isolated on a genuinely transparent background.
+Constraints: no text, no labels, no watermark, no extra ships, no surrounding scenery, no cropping. Keep a continuous triangular outline rather than separate swept wings.

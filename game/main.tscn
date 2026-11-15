@@ -1,0 +1,1188 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://game/warp.gd" id="2_warp"]
+[ext_resource type="Script" path="res://game/asteroids.gd" id="3_asteroids"]
+[ext_resource type="PackedScene" path="res://game/ship.tscn" id="4_ship"]
+[ext_resource type="Shader" path="res://game/streaks.gdshader" id="5_streaks"]
+[ext_resource type="Shader" path="res://game/glow.gdshader" id="6_glow"]
+[ext_resource type="AudioStream" path="res://assets/audio/warp-launch.ogg" id="7_launch"]
+[ext_resource type="AudioStream" path="res://assets/audio/explosion.ogg" id="8_explosion"]
+[ext_resource type="AudioStream" path="res://assets/audio/ui-blip.ogg" id="9_blip"]
+[ext_resource type="AudioStream" path="res://assets/audio/green-dust.mp3" id="10_music"]
+[ext_resource type="Shader" path="res://game/fog.gdshader" id="11_fog"]
+[ext_resource type="Script" path="res://game/ring.gd" id="12_ring"]
+[ext_resource type="Shader" path="res://game/ring.gdshader" id="13_ring"]
+[ext_resource type="Script" path="res://game/power_bar.gd" id="14_power_bar"]
+[ext_resource type="AudioStream" path="res://assets/audio/thruster-turn.ogg" id="15_turn"]
+[ext_resource type="PackedScene" path="res://game/station.tscn" id="16_station"]
+[ext_resource type="Script" path="res://game/bolts.gd" id="17_bolts"]
+[ext_resource type="Script" path="res://game/smoke.gd" id="18_smoke"]
+[ext_resource type="Shader" path="res://game/smoke.gdshader" id="19_smoke"]
+[ext_resource type="Script" path="res://game/raiders.gd" id="20_raiders"]
+
+[ext_resource type="PackedScene" path="res://game/ship_select.tscn" id="21_ship_select"]
+[ext_resource type="PackedScene" path="res://game/mothership.tscn" id="22_mothership"]
+[ext_resource type="PackedScene" path="res://game/debrief.tscn" id="27_debrief"]
+
+[ext_resource type="Shader" path="res://game/orbital_light.gdshader" id="23_orbit"]
+[ext_resource type="AudioStream" path="res://assets/audio/bolt.ogg" id="24_bolt"]
+[ext_resource type="AudioStream" path="res://assets/audio/boost.ogg" id="25_boost"]
+[ext_resource type="AudioStream" path="res://assets/audio/recharge.ogg" id="26_charge"]
+[ext_resource type="Texture2D" path="res://assets/environment/lunar-albedo.jpg" id="27_lunar"]
+[ext_resource type="Texture2D" path="res://assets/environment/lunar-relief.jpg" id="28_lunar_normal"]
+[ext_resource type="Script" path="res://game/ring_marker.gd" id="29_marker"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_orbit"]
+shader = ExtResource("23_orbit")
+
+[sub_resource type="Sky" id="Sky_orbit"]
+sky_material = SubResource("ShaderMaterial_orbit")
+
+[sub_resource type="Environment" id="Environment_space"]
+sky = SubResource("Sky_orbit")
+reflected_light_source = 2
+background_mode = 1
+background_color = Color(0.012, 0.016, 0.039, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.64, 0.71, 0.80, 1)
+ambient_light_energy = 0.35
+ambient_light_sky_contribution = 0.0
+tonemap_mode = 3
+tonemap_white = 5.5
+ssao_enabled = true
+ssao_radius = 0.65
+ssao_intensity = 1.45
+ssao_light_affect = 0.16
+glow_enabled = true
+glow_intensity = 0.8
+glow_blend_mode = 0
+glow_hdr_threshold = 1.0
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.012, 0.016, 0.039, 1)
+fog_sun_scatter = 0.0
+fog_density = 1.0
+fog_sky_affect = 0.0
+fog_depth_curve = 1.0
+fog_depth_begin = 180.0
+fog_depth_end = 430.0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0
+volumetric_fog_length = 300.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_streaks"]
+shader = ExtResource("5_streaks")
+
+[sub_resource type="StandardMaterial3D" id="LunarRegolith"]
+albedo_color = Color(0.64, 0.66, 0.70, 1)
+albedo_texture = ExtResource("27_lunar")
+roughness = 1.0
+metallic_specular = 0.08
+normal_enabled = true
+normal_texture = ExtResource("28_lunar_normal")
+disable_fog = true
+
+[sub_resource type="SphereMesh" id="Moon"]
+material = SubResource("LunarRegolith")
+radius = 135.0
+height = 270.0
+radial_segments = 80
+rings = 40
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sky"]
+shading_mode = 0
+albedo_color = Color(0.56, 0.64, 0.8, 1)
+disable_fog = true
+use_point_size = true
+point_size = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glow"]
+shader = ExtResource("6_glow")
+
+[sub_resource type="QuadMesh" id="QuadMesh_glow"]
+material = SubResource("ShaderMaterial_glow")
+size = Vector2(1100, 1100)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fog"]
+frequency = 0.04
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_fog"]
+seamless = true
+noise = SubResource("FastNoiseLite_fog")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fog"]
+shader = ExtResource("11_fog")
+shader_parameter/noise = SubResource("NoiseTexture3D_fog")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ring"]
+shader = ExtResource("13_ring")
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+material = SubResource("ShaderMaterial_ring")
+inner_radius = 3.0
+outer_radius = 3.5
+ring_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bolt"]
+shading_mode = 0
+albedo_color = Color(2.4, 1.3, 0.8, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_bolt"]
+material = SubResource("StandardMaterial3D_bolt")
+radius = 0.105
+height = 8.0
+radial_segments = 8
+rings = 2
+
+[sub_resource type="MultiMesh" id="MultiMesh_bolts"]
+transform_format = 1
+instance_count = 48
+visible_instance_count = 0
+mesh = SubResource("CapsuleMesh_bolt")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_smoke"]
+frequency = 0.012
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_smoke"]
+width = 256
+height = 256
+seamless = true
+noise = SubResource("FastNoiseLite_smoke")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_smoke"]
+render_priority = 1
+shader = ExtResource("19_smoke")
+shader_parameter/noise = SubResource("NoiseTexture2D_smoke")
+
+[sub_resource type="QuadMesh" id="QuadMesh_smoke"]
+material = SubResource("ShaderMaterial_smoke")
+size = Vector2(2, 2)
+
+[sub_resource type="MultiMesh" id="MultiMesh_smoke"]
+transform_format = 1
+use_colors = true
+use_custom_data = true
+instance_count = 400
+visible_instance_count = 0
+mesh = SubResource("QuadMesh_smoke")
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_spark"]
+gradient = SubResource("Gradient_spark")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1.4, 1.4, 1.4, 1)
+albedo_texture = SubResource("GradientTexture2D_spark")
+disable_fog = true
+billboard_mode = 3
+render_priority = 2
+
+[sub_resource type="QuadMesh" id="QuadMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector2(0.3, 0.3)
+
+[sub_resource type="Gradient" id="Gradient_spark_colors"]
+offsets = PackedFloat32Array(0, 0.33, 0.66, 1)
+colors = PackedColorArray(1, 0.48, 0.16, 1, 1, 0.95, 0.77, 1, 1, 0.26, 0.22, 1, 0.44, 0.89, 1, 1)
+
+[sub_resource type="Gradient" id="Gradient_spark_fade"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="FontVariation" id="FontVariation_hud"]
+spacing_glyph = 4
+
+[sub_resource type="FontVariation" id="FontVariation_title"]
+variation_embolden = 0.6
+spacing_glyph = 22
+
+[sub_resource type="LabelSettings" id="LabelSettings_caption"]
+font = SubResource("FontVariation_hud")
+font_size = 13
+font_color = Color(0.37, 0.88, 1, 0.85)
+
+[sub_resource type="LabelSettings" id="LabelSettings_value"]
+font = SubResource("FontVariation_hud")
+font_size = 30
+font_color = Color(0.92, 0.96, 1, 1)
+shadow_size = 10
+shadow_color = Color(0.37, 0.88, 1, 0.25)
+shadow_offset = Vector2(0, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font = SubResource("FontVariation_title")
+font_size = 84
+font_color = Color(0.94, 0.98, 1, 1)
+shadow_size = 18
+shadow_color = Color(0.37, 0.88, 1, 0.25)
+shadow_offset = Vector2(0, 0)
+
+[sub_resource type="LabelSettings" id="LabelSettings_station"]
+font = SubResource("FontVariation_title")
+font_size = 44
+font_color = Color(0.94, 0.98, 1, 1)
+shadow_size = 14
+shadow_color = Color(0.37, 0.88, 1, 0.25)
+shadow_offset = Vector2(0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+content_margin_left = 22.0
+content_margin_right = 22.0
+bg_color = Color(0.02, 0.06, 0.12, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.55)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 22.0
+content_margin_right = 22.0
+bg_color = Color(0.08, 0.3, 0.42, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
+content_margin_left = 22.0
+content_margin_right = 22.0
+bg_color = Color(0.02, 0.04, 0.07, 0.7)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.78, 0.25, 0.5)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_focus"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.37, 0.88, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_text"]
+font = SubResource("FontVariation_hud")
+line_spacing = 12.0
+font_size = 16
+outline_size = 6
+outline_color = Color(0.012, 0.016, 0.039, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_fitted"]
+font = SubResource("FontVariation_hud")
+font_size = 11
+font_color = Color(1, 0.78, 0.25, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_bonus"]
+font = SubResource("FontVariation_hud")
+font_size = 16
+font_color = Color(1, 0.78, 0.25, 1)
+outline_size = 6
+outline_color = Color(0.012, 0.016, 0.039, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_offer"]
+font = SubResource("FontVariation_hud")
+font_size = 11
+font_color = Color(0.78, 0.88, 0.96, 0.8)
+outline_size = 5
+outline_color = Color(0.012, 0.016, 0.039, 0.8)
+
+[sub_resource type="LabelSettings" id="LabelSettings_prompt"]
+font = SubResource("FontVariation_hud")
+font_size = 16
+font_color = Color(0.37, 0.88, 1, 1)
+outline_size = 6
+outline_color = Color(0.012, 0.016, 0.039, 0.8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volume_track"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.37, 0.88, 1, 0.2)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volume_fill"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.37, 0.88, 1, 0.85)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_volume_fill_hover"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.37, 0.88, 1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="Gradient" id="Gradient_knob"]
+offsets = PackedFloat32Array(0.72, 0.86)
+colors = PackedColorArray(0.94, 0.98, 1, 1, 0.94, 0.98, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_knob"]
+gradient = SubResource("Gradient_knob")
+width = 18
+height = 18
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_knob_hover"]
+offsets = PackedFloat32Array(0.5, 0.62, 0.72, 1)
+colors = PackedColorArray(0.94, 0.98, 1, 1, 0.37, 0.88, 1, 1, 0.37, 0.88, 1, 0.45, 0.37, 0.88, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_knob_hover"]
+gradient = SubResource("Gradient_knob_hover")
+width = 18
+height = 18
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="FontVariation" id="FontVariation_launch"]
+variation_embolden = 0.6
+spacing_glyph = 9
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_selected"]
+content_margin_left = 18.0
+content_margin_right = 18.0
+bg_color = Color(0.05, 0.17, 0.23, 0.94)
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+shadow_color = Color(0.37, 0.88, 1, 0.18)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice"]
+content_margin_left = 18.0
+content_margin_right = 18.0
+bg_color = Color(0.016, 0.04, 0.08, 0.62)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.2)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_hover"]
+content_margin_left = 18.0
+content_margin_right = 18.0
+bg_color = Color(0.04, 0.12, 0.17, 0.85)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.55)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_choice_focus"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.5)
+expand_margin_left = 3.0
+expand_margin_top = 3.0
+expand_margin_right = 3.0
+expand_margin_bottom = 3.0
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="FontVariation" id="FontVariation_launch_button"]
+variation_embolden = 0.5
+spacing_glyph = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_launch"]
+bg_color = Color(0.37, 0.88, 1, 0.92)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+shadow_color = Color(0.37, 0.88, 1, 0.22)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_launch_hover"]
+bg_color = Color(0.68, 0.94, 1, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+shadow_color = Color(0.37, 0.88, 1, 0.4)
+shadow_size = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_launch_focus"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.45)
+expand_margin_left = 4.0
+expand_margin_top = 4.0
+expand_margin_right = 4.0
+expand_margin_bottom = 4.0
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_key"]
+content_margin_left = 8.0
+content_margin_top = 3.0
+content_margin_right = 7.0
+content_margin_bottom = 3.0
+bg_color = Color(0.37, 0.88, 1, 0.07)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.32)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thumb"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.016, 0.04, 0.08, 0.55)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.14)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thumb_hover"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.04, 0.12, 0.17, 0.8)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.37, 0.88, 1, 0.5)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_thumb_selected"]
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+bg_color = Color(0.05, 0.17, 0.23, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.37, 0.88, 1, 0.95)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+shadow_color = Color(0.37, 0.88, 1, 0.2)
+shadow_size = 10
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_arrow"]
+
+[sub_resource type="FontVariation" id="FontVariation_wordmark"]
+variation_embolden = 0.6
+spacing_glyph = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_record"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 9.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 0.78, 0.25, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.78, 0.25, 0.7)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+shadow_color = Color(1, 0.78, 0.25, 0.2)
+shadow_size = 10
+
+[sub_resource type="Theme" id="Theme_launch"]
+Button/fonts/font = SubResource("FontVariation_hud")
+Button/font_sizes/font_size = 16
+Button/colors/font_color = Color(0.72, 0.8, 0.87, 1)
+Button/colors/font_hover_color = Color(0.94, 0.98, 1, 1)
+Button/colors/font_pressed_color = Color(0.94, 0.98, 1, 1)
+Button/colors/font_hover_pressed_color = Color(0.94, 0.98, 1, 1)
+Button/colors/font_focus_color = Color(0.94, 0.98, 1, 1)
+Button/colors/icon_normal_color = Color(0.62, 0.72, 0.8, 0.85)
+Button/colors/icon_hover_color = Color(0.9, 0.96, 1, 1)
+Button/colors/icon_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+Button/colors/icon_focus_color = Color(0.9, 0.96, 1, 1)
+Button/styles/normal = SubResource("StyleBoxFlat_choice")
+Button/styles/pressed = SubResource("StyleBoxFlat_selected")
+Button/styles/hover_pressed = SubResource("StyleBoxFlat_selected")
+Button/styles/focus = SubResource("StyleBoxFlat_choice_focus")
+Button/styles/hover = SubResource("StyleBoxFlat_choice_hover")
+Label/font_sizes/font_size = 19
+Label/colors/font_color = Color(0.92, 0.96, 1, 1)
+LaunchTitle/base_type = &"Label"
+LaunchTitle/fonts/font = SubResource("FontVariation_launch")
+LaunchTitle/font_sizes/font_size = 55
+LaunchCaption/base_type = &"Label"
+LaunchCaption/fonts/font = SubResource("FontVariation_hud")
+LaunchCaption/font_sizes/font_size = 13
+LaunchCaption/colors/font_color = Color(0.37, 0.88, 1, 0.95)
+LaunchCaption/colors/font_outline_color = Color(0.012, 0.025, 0.05, 0.85)
+LaunchCaption/constants/outline_size = 4
+LaunchShipName/base_type = &"Label"
+LaunchShipName/fonts/font = SubResource("FontVariation_launch")
+LaunchShipName/font_sizes/font_size = 46
+LaunchShipName/colors/font_color = Color(0.94, 0.98, 1, 1)
+LaunchShipName/colors/font_shadow_color = Color(0.37, 0.88, 1, 0.25)
+LaunchShipName/constants/shadow_outline_size = 12
+LaunchShipName/constants/shadow_offset_x = 0
+LaunchShipName/constants/shadow_offset_y = 0
+LaunchKey/base_type = &"Label"
+LaunchKey/fonts/font = SubResource("FontVariation_hud")
+LaunchKey/font_sizes/font_size = 11
+LaunchKey/colors/font_color = Color(0.37, 0.88, 1, 0.9)
+LaunchKey/styles/normal = SubResource("StyleBoxFlat_key")
+LaunchWordmark/base_type = &"Label"
+LaunchWordmark/fonts/font = SubResource("FontVariation_wordmark")
+LaunchWordmark/font_sizes/font_size = 22
+LaunchWordmark/colors/font_color = Color(0.94, 0.98, 1, 1)
+LaunchTip/base_type = &"Label"
+LaunchTip/font_sizes/font_size = 14
+LaunchTip/colors/font_color = Color(0.62, 0.72, 0.8, 0.85)
+DebriefTitle/base_type = &"Label"
+DebriefTitle/fonts/font = SubResource("FontVariation_launch")
+DebriefTitle/font_sizes/font_size = 40
+DebriefTitle/colors/font_color = Color(1, 0.3, 0.26, 1)
+DebriefTitle/colors/font_shadow_color = Color(1, 0.26, 0.22, 0.16)
+DebriefTitle/constants/shadow_outline_size = 6
+DebriefTitle/constants/shadow_offset_x = 0
+DebriefTitle/constants/shadow_offset_y = 0
+DebriefScore/base_type = &"Label"
+DebriefScore/fonts/font = SubResource("FontVariation_launch")
+DebriefScore/font_sizes/font_size = 84
+DebriefScore/colors/font_color = Color(0.94, 0.98, 1, 1)
+DebriefScore/colors/font_shadow_color = Color(0.37, 0.88, 1, 0.14)
+DebriefScore/constants/shadow_outline_size = 8
+DebriefScore/constants/shadow_offset_x = 0
+DebriefScore/constants/shadow_offset_y = 0
+DebriefRecord/base_type = &"Label"
+DebriefRecord/fonts/font = SubResource("FontVariation_hud")
+DebriefRecord/font_sizes/font_size = 12
+DebriefRecord/colors/font_color = Color(1, 0.82, 0.38, 1)
+DebriefRecord/styles/normal = SubResource("StyleBoxFlat_record")
+DebriefStat/base_type = &"Label"
+DebriefStat/fonts/font = SubResource("FontVariation_hud")
+DebriefStat/font_sizes/font_size = 20
+DebriefStat/colors/font_color = Color(0.94, 0.98, 1, 1)
+HullThumb/base_type = &"Button"
+HullThumb/styles/normal = SubResource("StyleBoxFlat_thumb")
+HullThumb/styles/hover = SubResource("StyleBoxFlat_thumb_hover")
+HullThumb/styles/pressed = SubResource("StyleBoxFlat_thumb_selected")
+HullThumb/styles/hover_pressed = SubResource("StyleBoxFlat_thumb_selected")
+HullArrow/base_type = &"Button"
+HullArrow/colors/icon_normal_color = Color(0.37, 0.88, 1, 0.7)
+HullArrow/colors/icon_hover_color = Color(0.94, 0.98, 1, 1)
+HullArrow/colors/icon_pressed_color = Color(0.37, 0.88, 1, 1)
+HullArrow/colors/icon_hover_pressed_color = Color(0.94, 0.98, 1, 1)
+HullArrow/styles/normal = SubResource("StyleBoxEmpty_arrow")
+HullArrow/styles/hover = SubResource("StyleBoxEmpty_arrow")
+HullArrow/styles/pressed = SubResource("StyleBoxEmpty_arrow")
+HullArrow/styles/focus = SubResource("StyleBoxEmpty_arrow")
+LaunchHint/base_type = &"Label"
+LaunchHint/font_sizes/font_size = 15
+LaunchHint/colors/font_color = Color(0.86, 0.91, 0.96, 0.9)
+LaunchButton/base_type = &"Button"
+LaunchButton/fonts/font = SubResource("FontVariation_launch_button")
+LaunchButton/font_sizes/font_size = 17
+LaunchButton/styles/focus = SubResource("StyleBoxFlat_launch_focus")
+LaunchButton/styles/normal = SubResource("StyleBoxFlat_launch")
+LaunchButton/styles/hover = SubResource("StyleBoxFlat_launch_hover")
+LaunchButton/styles/pressed = SubResource("StyleBoxFlat_launch_hover")
+LaunchButton/colors/font_color = Color(0.02, 0.06, 0.12, 1)
+LaunchButton/colors/font_hover_color = Color(0.02, 0.06, 0.12, 1)
+LaunchButton/colors/font_focus_color = Color(0.02, 0.06, 0.12, 1)
+LaunchButton/colors/font_pressed_color = Color(0.02, 0.06, 0.12, 1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_space")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7809, 0.4272, -0.4558, 0, 0.7297, 0.6838, 0.6247, -0.534, 0.5698, 0, 0, 0)
+light_energy = 1.34
+light_color = Color(1, 0.948, 0.86, 1)
+shadow_enabled = true
+directional_shadow_max_distance = 300.0
+
+[node name="Rim" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8944, 0.1278, 0.4286, 0, 0.9583, -0.2857, -0.4472, -0.2555, -0.8571, 0, 0, 0)
+light_color = Color(0.50, 0.69, 0.92, 1)
+light_energy = 0.4
+light_volumetric_fog_energy = 0.15
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 7)
+fov = 60.0
+far = 2500.0
+
+[node name="World" type="Node3D" parent="."]
+
+[node name="Warp" type="Node3D" parent="World"]
+script = ExtResource("2_warp")
+
+[node name="Moon" type="MeshInstance3D" parent="World/Warp"]
+position = Vector3(620, 245, -930)
+rotation = Vector3(0.12, 1.70, -0.30)
+cast_shadow = 0
+mesh = SubResource("Moon")
+
+[node name="Streaks" type="MeshInstance3D" parent="World/Warp"]
+cast_shadow = 0
+material_override = SubResource("ShaderMaterial_streaks")
+
+[node name="Sky" type="MeshInstance3D" parent="World/Warp"]
+cast_shadow = 0
+material_override = SubResource("StandardMaterial3D_sky")
+
+[node name="Glow" type="MeshInstance3D" parent="World/Warp"]
+cast_shadow = 0
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1000)
+mesh = SubResource("QuadMesh_glow")
+
+[node name="Fog" type="FogVolume" parent="World/Warp"]
+shape = 4
+material = SubResource("ShaderMaterial_fog")
+
+[node name="Asteroids" type="Node3D" parent="World"]
+script = ExtResource("3_asteroids")
+
+[node name="Ring" type="MeshInstance3D" parent="World"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+cast_shadow = 0
+mesh = SubResource("TorusMesh_ring")
+script = ExtResource("12_ring")
+
+[node name="Light" type="OmniLight3D" parent="World/Ring"]
+light_color = Color(1, 0.78, 0.25, 1)
+light_energy = 3.0
+light_volumetric_fog_energy = 4.0
+omni_range = 14.0
+
+[node name="Station" parent="World" instance=ExtResource("16_station")]
+visible = false
+
+[node name="Mothership" parent="World" instance=ExtResource("22_mothership")]
+
+[node name="Bolts" type="MultiMeshInstance3D" parent="World"]
+cast_shadow = 0
+custom_aabb = AABB(-12, -8, -210, 24, 16, 215)
+multimesh = SubResource("MultiMesh_bolts")
+script = ExtResource("17_bolts")
+
+[node name="Shot" type="AudioStreamPlayer" parent="World/Bolts"]
+stream = ExtResource("24_bolt")
+volume_db = -5.0
+max_polyphony = 4
+bus = &"SFX"
+
+[node name="Smoke" type="MultiMeshInstance3D" parent="World"]
+cast_shadow = 0
+custom_aabb = AABB(-70, -70, -300, 140, 140, 330)
+multimesh = SubResource("MultiMesh_smoke")
+script = ExtResource("18_smoke")
+
+[node name="Ship" parent="." instance=ExtResource("4_ship")]
+
+[node name="Raiders" type="Node3D" parent="."]
+script = ExtResource("20_raiders")
+
+[node name="Explosion" type="CPUParticles3D" parent="Raiders"]
+emitting = false
+amount = 180
+lifetime = 1.2
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("QuadMesh_spark")
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 20.0
+damping_min = 10.0
+damping_max = 18.0
+color_ramp = SubResource("Gradient_spark_fade")
+color_initial_ramp = SubResource("Gradient_spark_colors")
+
+[node name="Bang" type="AudioStreamPlayer3D" parent="Raiders"]
+stream = ExtResource("8_explosion")
+attenuation_model = 3
+volume_db = 0.0
+pitch_scale = 1.15
+panning_strength = 2.0
+bus = &"SFX"
+
+[node name="Explosion" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 260
+lifetime = 1.4
+one_shot = true
+explosiveness = 1.0
+mesh = SubResource("QuadMesh_spark")
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 2.0
+initial_velocity_max = 24.0
+damping_min = 10.0
+damping_max = 18.0
+color_ramp = SubResource("Gradient_spark_fade")
+color_initial_ramp = SubResource("Gradient_spark_colors")
+
+[node name="Sounds" type="Node" parent="."]
+
+[node name="Music" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("10_music")
+volume_db = -9.0
+autoplay = true
+
+[node name="Launch" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("7_launch")
+volume_db = 0.0
+bus = &"SFX"
+
+[node name="Explosion" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("8_explosion")
+bus = &"SFX"
+
+[node name="Blip" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("9_blip")
+volume_db = -8.0
+
+[node name="Boost" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("25_boost")
+volume_db = -1.0
+bus = &"SFX"
+
+[node name="Turn" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("15_turn")
+volume_db = -2.0
+bus = &"SFX"
+
+[node name="Charge" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("26_charge")
+volume_db = -4.0
+bus = &"SFX"
+
+[node name="Graze" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("9_blip")
+volume_db = -5.0
+pitch_scale = 1.8
+bus = &"SFX"
+
+[node name="Warning" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("9_blip")
+volume_db = -4.0
+pitch_scale = 0.62
+bus = &"SFX"
+
+[node name="Chime" type="AudioStreamPlayer" parent="Sounds"]
+stream = ExtResource("26_charge")
+volume_db = -10.0
+pitch_scale = 1.6
+bus = &"SFX"
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="BarTop" type="ColorRect" parent="HUD"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="BarBottom" type="ColorRect" parent="HUD"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="RingMarker" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("29_marker")
+
+[node name="Score" type="VBoxContainer" parent="HUD"]
+offset_left = 30.0
+offset_top = 22.0
+offset_right = 30.0
+offset_bottom = 22.0
+mouse_filter = 2
+
+[node name="Caption" type="Label" parent="HUD/Score"]
+layout_mode = 2
+text = "Score"
+label_settings = SubResource("LabelSettings_caption")
+uppercase = true
+
+[node name="Value" type="Label" parent="HUD/Score"]
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_value")
+
+[node name="Warp" type="Label" parent="HUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 22.0
+offset_bottom = 22.0
+grow_horizontal = 2
+text = "Warp 0.0"
+label_settings = SubResource("LabelSettings_caption")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Best" type="VBoxContainer" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -30.0
+offset_top = 22.0
+offset_right = -30.0
+offset_bottom = 22.0
+grow_horizontal = 0
+mouse_filter = 2
+
+[node name="Caption" type="Label" parent="HUD/Best"]
+layout_mode = 2
+text = "Best"
+label_settings = SubResource("LabelSettings_caption")
+horizontal_alignment = 2
+uppercase = true
+
+[node name="Value" type="Label" parent="HUD/Best"]
+layout_mode = 2
+text = "0"
+label_settings = SubResource("LabelSettings_value")
+horizontal_alignment = 2
+
+[node name="Power" type="VBoxContainer" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -130.0
+offset_top = -64.0
+offset_right = 130.0
+offset_bottom = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Fitted" type="Label" parent="HUD/Power"]
+visible = false
+layout_mode = 2
+text = "Ram plating"
+label_settings = SubResource("LabelSettings_fitted")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Caption" type="Label" parent="HUD/Power"]
+layout_mode = 2
+text = "Power"
+label_settings = SubResource("LabelSettings_caption")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Bar" type="Control" parent="HUD/Power"]
+custom_minimum_size = Vector2(260, 12)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("14_power_bar")
+
+[node name="Notice" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 54.0
+offset_bottom = 54.0
+grow_horizontal = 2
+text = "Station ahead"
+label_settings = SubResource("LabelSettings_prompt")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Bonus" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 86.0
+offset_bottom = 86.0
+grow_horizontal = 2
+text = "Close call +150"
+label_settings = SubResource("LabelSettings_bonus")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Hangar" type="Control" parent="HUD"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Menu" type="VBoxContainer" parent="HUD/Hangar"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -470.0
+offset_top = -260.0
+offset_right = -90.0
+offset_bottom = 260.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/Hangar/Menu"]
+layout_mode = 2
+text = "Station 1"
+label_settings = SubResource("LabelSettings_station")
+uppercase = true
+
+[node name="Detail" type="Label" parent="HUD/Hangar/Menu"]
+layout_mode = 2
+text = "Score 10,000
+Boost charge x1"
+label_settings = SubResource("LabelSettings_text")
+uppercase = true
+
+[node name="UpgradeOffer" type="VBoxContainer" parent="HUD/Hangar/Menu"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Upgrade" type="Button" parent="HUD/Hangar/Menu/UpgradeOffer"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_disabled_color = Color(1, 0.78, 0.25, 0.9)
+theme_override_fonts/font = SubResource("FontVariation_hud")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Double boost charge"
+
+[node name="About" type="Label" parent="HUD/Hangar/Menu/UpgradeOffer"]
+layout_mode = 2
+text = "The battery lasts twice as long"
+label_settings = SubResource("LabelSettings_offer")
+uppercase = true
+
+[node name="RamOffer" type="VBoxContainer" parent="HUD/Hangar/Menu"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Ram" type="Button" parent="HUD/Hangar/Menu/RamOffer"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_disabled_color = Color(1, 0.78, 0.25, 0.9)
+theme_override_fonts/font = SubResource("FontVariation_hud")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Ram plating"
+
+[node name="About" type="Label" parent="HUD/Hangar/Menu/RamOffer"]
+layout_mode = 2
+text = "Boosting smashes small rocks and debris"
+label_settings = SubResource("LabelSettings_offer")
+uppercase = true
+
+[node name="HomingOffer" type="VBoxContainer" parent="HUD/Hangar/Menu"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Homing" type="Button" parent="HUD/Hangar/Menu/HomingOffer"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_colors/font_disabled_color = Color(1, 0.78, 0.25, 0.9)
+theme_override_fonts/font = SubResource("FontVariation_hud")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Homing bolts"
+
+[node name="About" type="Label" parent="HUD/Hangar/Menu/HomingOffer"]
+layout_mode = 2
+text = "Bolts seek raiders, then rocks. Fires 10x slower"
+label_settings = SubResource("LabelSettings_offer")
+uppercase = true
+
+[node name="Leave" type="Button" parent="HUD/Hangar/Menu"]
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_fonts/font = SubResource("FontVariation_hud")
+theme_override_font_sizes/font_size = 16
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_focus")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Launch"
+
+[node name="ShipSelect" parent="HUD" instance=ExtResource("21_ship_select")]
+theme = SubResource("Theme_launch")
+
+[node name="Debrief" parent="HUD" instance=ExtResource("27_debrief")]
+theme = SubResource("Theme_launch")
+
+[node name="Overlay" type="VBoxContainer" parent="HUD"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Title" type="Label" parent="HUD/Overlay"]
+layout_mode = 2
+text = "Paused"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Detail" type="Label" parent="HUD/Overlay"]
+layout_mode = 2
+label_settings = SubResource("LabelSettings_text")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Prompt" type="Label" parent="HUD/Overlay"]
+layout_mode = 2
+text = "Click to resume"
+label_settings = SubResource("LabelSettings_prompt")
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Volume" type="HBoxContainer" parent="HUD/Overlay"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Caption" type="Label" parent="HUD/Overlay/Volume"]
+oversampling_with_scale = true
+layout_mode = 2
+text = "Volume"
+label_settings = SubResource("LabelSettings_caption")
+vertical_alignment = 1
+uppercase = true
+
+[node name="Slider" type="HSlider" parent="HUD/Overlay/Volume"]
+custom_minimum_size = Vector2(220, 24)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_icons/grabber = SubResource("GradientTexture2D_knob")
+theme_override_icons/grabber_highlight = SubResource("GradientTexture2D_knob_hover")
+theme_override_styles/slider = SubResource("StyleBoxFlat_volume_track")
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_volume_fill")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_volume_fill_hover")
+max_value = 1.0
+step = 0.05
+value = 1.0

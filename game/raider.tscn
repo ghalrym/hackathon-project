@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/raider.gd" id="1_raider"]
+[ext_resource type="PackedScene" path="res://assets/models/triangle-spaceship.glb" id="2_model"]
+[ext_resource type="Shader" path="res://game/raider.gdshader" id="3_hull"]
+[ext_resource type="Texture2D" path="res://assets/models/triangle-spaceship_triangle-spaceship_basecolor.jpg" id="4_paint"]
+[ext_resource type="Texture2D" path="res://assets/models/triangle-spaceship_triangle-spaceship_emissive.jpg" id="5_lights"]
+[ext_resource type="Shader" path="res://game/flame.gdshader" id="6_flame"]
+[ext_resource type="AudioStream" path="res://assets/audio/flyby-02.ogg" id="7_flyby"]
+[ext_resource type="Texture2D" path="res://assets/models/triangle-spaceship_triangle-spaceship-relief.jpg" id="8_relief"]
+[ext_resource type="Texture2D" path="res://assets/models/triangle-spaceship_triangle-spaceship-paint.jpg" id="9_coating"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hull"]
+shader = ExtResource("3_hull")
+shader_parameter/paint = ExtResource("4_paint")
+shader_parameter/lights = ExtResource("5_lights")
+shader_parameter/relief = ExtResource("8_relief")
+shader_parameter/coating = ExtResource("9_coating")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flame"]
+render_priority = 2
+shader = ExtResource("6_flame")
+shader_parameter/hot = Color(1, 0.55, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_flame"]
+material = SubResource("ShaderMaterial_flame")
+size = Vector3(0.6, 1, 0.6)
+
+[node name="Raider" type="Node3D"]
+script = ExtResource("1_raider")
+hull = SubResource("ShaderMaterial_hull")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(-0.6, 0, 0, 0, 0.6, 0, 0, 0, -0.6, 0, 0, 0)
+
+[node name="FlameLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -0.45, 0, 1, 0, -0.295, -0.070, 0.775)
+extra_cull_margin = 4.0
+mesh = SubResource("BoxMesh_flame")
+
+[node name="FlameRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -0.45, 0, 1, 0, 0.295, -0.070, 0.775)
+extra_cull_margin = 4.0
+instance_shader_parameters/seed = 3.7
+mesh = SubResource("BoxMesh_flame")
+
+[node name="Whoosh" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("7_flyby")
+attenuation_model = 3
+volume_db = 0.0
+pitch_scale = 0.75
+panning_strength = 2.0
+bus = &"SFX"

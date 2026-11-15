@@ -1,0 +1,127 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/ship.gd" id="1_ship"]
+[ext_resource type="PackedScene" path="res://assets/models/triangle-spaceship.glb" id="2_model"]
+[ext_resource type="Shader" path="res://game/flame.gdshader" id="3_flame"]
+[ext_resource type="AudioStream" path="res://assets/audio/engine-loop.ogg" id="4_engine"]
+[ext_resource type="PackedScene" path="res://assets/ships/kestrel.glb" id="5_kestrel"]
+[ext_resource type="PackedScene" path="res://assets/ships/manta.glb" id="6_manta"]
+[ext_resource type="PackedScene" path="res://assets/ships/gemini.glb" id="7_gemini"]
+[ext_resource type="PackedScene" path="res://assets/ships/landing-strut.glb" id="8_strut"]
+[ext_resource type="Shader" path="res://game/ram.gdshader" id="9_ram"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flame"]
+render_priority = 2
+shader = ExtResource("3_flame")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ram"]
+render_priority = 1
+shader = ExtResource("9_ram")
+
+[sub_resource type="SphereMesh" id="SphereMesh_ram"]
+material = SubResource("ShaderMaterial_ram")
+radial_segments = 48
+rings = 24
+
+[sub_resource type="BoxMesh" id="BoxMesh_flame"]
+material = SubResource("ShaderMaterial_flame")
+size = Vector3(0.6, 1, 0.6)
+
+[sub_resource type="Gradient" id="Gradient_spark"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_spark"]
+gradient = SubResource("Gradient_spark")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+transparency = 1
+blend_mode = 1
+shading_mode = 0
+vertex_color_use_as_albedo = true
+cull_mode = 2
+albedo_color = Color(1.6, 1.6, 1.6, 1)
+albedo_texture = SubResource("GradientTexture2D_spark")
+disable_fog = true
+render_priority = 3
+
+[sub_resource type="QuadMesh" id="QuadMesh_spark"]
+material = SubResource("StandardMaterial3D_spark")
+size = Vector2(0.022, 0.4)
+orientation = 1
+
+[sub_resource type="Gradient" id="Gradient_spark_fade"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(1, 0.97, 0.92, 1, 0.52, 0.82, 1, 1, 0.66, 0.42, 1, 0)
+
+[node name="Ship" type="Node3D"]
+script = ExtResource("1_ship")
+
+[node name="Hulls" type="Node3D" parent="."]
+
+[node name="Delta" type="Node3D" parent="Hulls"]
+
+[node name="Model" parent="Hulls/Delta" instance=ExtResource("2_model")]
+transform = Transform3D(-0.6, 0, 0, 0, 0.6, 0, 0, 0, -0.6, 0, 0, 0)
+
+[node name="Exhaust" type="Marker3D" parent="Hulls/Delta"]
+position = Vector3(0.295, -0.070, 0.775)
+
+[node name="Kestrel" parent="Hulls" instance=ExtResource("5_kestrel")]
+visible = false
+
+[node name="Manta" parent="Hulls" instance=ExtResource("6_manta")]
+visible = false
+
+[node name="Gemini" parent="Hulls" instance=ExtResource("7_gemini")]
+visible = false
+
+[node name="Undercarriage" type="Node3D" parent="."]
+visible = false
+
+[node name="Centre" parent="Undercarriage" instance=ExtResource("8_strut")]
+
+[node name="Port" parent="Undercarriage" instance=ExtResource("8_strut")]
+
+[node name="Starboard" parent="Undercarriage" instance=ExtResource("8_strut")]
+
+[node name="FlameLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -0.45, 0, 1, 0, -0.293, -0.075, 0.62)
+extra_cull_margin = 4.0
+mesh = SubResource("BoxMesh_flame")
+
+[node name="FlameRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0, -0.45, 0, 1, 0, 0.293, -0.075, 0.62)
+extra_cull_margin = 4.0
+instance_shader_parameters/seed = 3.7
+mesh = SubResource("BoxMesh_flame")
+
+[node name="Ram" type="MeshInstance3D" parent="."]
+transform = Transform3D(2.5, 0, 0, 0, 1.1, 0, 0, 0, 3.4, 0, 0, -0.35)
+visible = false
+cast_shadow = 0
+mesh = SubResource("SphereMesh_ram")
+
+[node name="Sparks" type="CPUParticles3D" parent="."]
+emitting = false
+amount = 28
+lifetime = 0.3
+randomness = 0.5
+mesh = SubResource("QuadMesh_spark")
+emission_shape = 5
+emission_points = PackedVector3Array(-0.293, -0.075, 0.62, 0.293, -0.075, 0.62)
+direction = Vector3(0, 0, 1)
+spread = 5.0
+gravity = Vector3(0, 0, 0)
+initial_velocity_min = 9.0
+initial_velocity_max = 18.0
+scale_amount_min = 0.4
+color_ramp = SubResource("Gradient_spark_fade")
+
+[node name="Engine" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_engine")
+volume_db = -7.0
+autoplay = true
+bus = &"SFX"

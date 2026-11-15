@@ -1,0 +1,288 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/ship_select.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://assets/ships/delta-plan.png" id="2_delta"]
+[ext_resource type="Texture2D" path="res://assets/ships/kestrel-plan.png" id="3_kestrel"]
+[ext_resource type="Texture2D" path="res://assets/ships/manta-plan.png" id="4_manta"]
+[ext_resource type="Texture2D" path="res://assets/ships/gemini-plan.png" id="5_gemini"]
+[ext_resource type="Texture2D" path="res://assets/ui/chevron-left.svg" id="6_prev"]
+[ext_resource type="Texture2D" path="res://assets/ui/chevron-right.svg" id="7_next"]
+
+[sub_resource type="ButtonGroup" id="HullChoices"]
+
+[sub_resource type="Gradient" id="Gradient_side"]
+offsets = PackedFloat32Array(0.0, 0.2, 0.42)
+colors = PackedColorArray(0.012, 0.025, 0.05, 0.9, 0.012, 0.025, 0.05, 0.72, 0.012, 0.025, 0.05, 0)
+
+[sub_resource type="GradientTexture2D" id="SideShade"]
+gradient = SubResource("Gradient_side")
+width = 256
+height = 16
+fill_to = Vector2(1, 0)
+
+[sub_resource type="Gradient" id="Gradient_floor"]
+offsets = PackedFloat32Array(0.0, 0.5)
+colors = PackedColorArray(0.012, 0.025, 0.05, 0.85, 0.012, 0.025, 0.05, 0)
+
+[sub_resource type="GradientTexture2D" id="FloorShade"]
+gradient = SubResource("Gradient_floor")
+width = 16
+height = 256
+fill_from = Vector2(0, 1)
+fill_to = Vector2(0, 0)
+
+[node name="ShipSelect" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1_menu")
+
+[node name="SideShade" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = SubResource("SideShade")
+expand_mode = 1
+
+[node name="FloorShade" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture = SubResource("FloorShade")
+expand_mode = 1
+
+[node name="PreviewArea" type="ReferenceRect" parent="."]
+unique_name_in_owner = true
+anchor_left = 0.3
+anchor_top = 0.09
+anchor_right = 0.95
+anchor_bottom = 0.68
+mouse_filter = 2
+border_color = Color(0.37, 0.88, 1, 0.25)
+
+[node name="Wordmark" type="Label" parent="."]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchWordmark"
+text = "DELTA WARP"
+
+[node name="Status" type="HBoxContainer" parent="."]
+mouse_filter = 2
+theme_override_constants/separation = 36
+
+[node name="Best" type="HBoxContainer" parent="Status"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Caption" type="Label" parent="Status/Best"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "BEST"
+
+[node name="Value" type="Label" parent="Status/Best"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"LaunchHint"
+text = "0"
+
+[node name="VolumeSlot" type="HBoxContainer" parent="Status"]
+unique_name_in_owner = true
+mouse_filter = 2
+
+[node name="Controls" type="VBoxContainer" parent="."]
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="Caption" type="Label" parent="Controls"]
+oversampling_with_scale = true
+theme_type_variation = &"LaunchCaption"
+text = "FLIGHT CONTROLS"
+
+[node name="Keys" type="GridContainer" parent="Controls"]
+custom_minimum_size = Vector2(270, 0)
+columns = 2
+mouse_filter = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 12
+
+[node name="SteerAction" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 3
+theme_type_variation = &"LaunchHint"
+text = "Steer"
+
+[node name="SteerKey" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 8
+theme_type_variation = &"LaunchKey"
+text = "MOUSE"
+
+[node name="BoostAction" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 3
+theme_type_variation = &"LaunchHint"
+text = "Boost"
+
+[node name="BoostKey" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 8
+theme_type_variation = &"LaunchKey"
+text = "LMB / SPACE"
+
+[node name="TurnAction" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 3
+theme_type_variation = &"LaunchHint"
+text = "Hard turn"
+
+[node name="TurnKey" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 8
+theme_type_variation = &"LaunchKey"
+text = "BOOST + FLICK"
+
+[node name="ShootAction" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 3
+theme_type_variation = &"LaunchHint"
+text = "Shoot"
+
+[node name="ShootKey" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 8
+theme_type_variation = &"LaunchKey"
+text = "RMB / F"
+
+[node name="PauseAction" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 3
+theme_type_variation = &"LaunchHint"
+text = "Pause"
+
+[node name="PauseKey" type="Label" parent="Controls/Keys"]
+oversampling_with_scale = true
+size_flags_horizontal = 8
+theme_type_variation = &"LaunchKey"
+text = "ESC"
+
+[node name="Tip" type="Label" parent="Controls"]
+oversampling_with_scale = true
+custom_minimum_size = Vector2(270, 0)
+theme_type_variation = &"LaunchTip"
+text = "Fly through rings to recharge power."
+autowrap_mode = 3
+
+[node name="Selector" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Index" type="Label" parent="Selector"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"LaunchCaption"
+text = "01 / 04"
+horizontal_alignment = 1
+
+[node name="NameRow" type="HBoxContainer" parent="Selector"]
+mouse_filter = 2
+alignment = 1
+
+[node name="Prev" type="Button" parent="Selector/NameRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+focus_mode = 0
+theme_type_variation = &"HullArrow"
+icon = ExtResource("6_prev")
+icon_alignment = 1
+accessibility_name = "Previous ship"
+
+[node name="Name" type="Label" parent="Selector/NameRow"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 0)
+theme_type_variation = &"LaunchShipName"
+text = "DELTA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Next" type="Button" parent="Selector/NameRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+focus_mode = 0
+theme_type_variation = &"HullArrow"
+icon = ExtResource("7_next")
+icon_alignment = 1
+accessibility_name = "Next ship"
+
+[node name="Spec" type="Label" parent="Selector"]
+oversampling_with_scale = true
+unique_name_in_owner = true
+theme_type_variation = &"LaunchCaption"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Gap" type="Control" parent="Selector"]
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+
+[node name="Choices" type="HBoxContainer" parent="Selector"]
+unique_name_in_owner = true
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Delta" type="Button" parent="Selector/Choices"]
+custom_minimum_size = Vector2(64, 44)
+focus_mode = 0
+theme_type_variation = &"HullThumb"
+toggle_mode = true
+button_group = SubResource("HullChoices")
+icon = ExtResource("2_delta")
+icon_alignment = 1
+expand_icon = true
+accessibility_name = "Delta"
+accessibility_description = "Continuous delta wing"
+
+[node name="Kestrel" type="Button" parent="Selector/Choices"]
+custom_minimum_size = Vector2(64, 44)
+focus_mode = 0
+theme_type_variation = &"HullThumb"
+toggle_mode = true
+button_group = SubResource("HullChoices")
+icon = ExtResource("3_kestrel")
+icon_alignment = 1
+expand_icon = true
+accessibility_name = "Kestrel"
+accessibility_description = "Swept wings  /  Canted tail fins"
+
+[node name="Manta" type="Button" parent="Selector/Choices"]
+custom_minimum_size = Vector2(64, 44)
+focus_mode = 0
+theme_type_variation = &"HullThumb"
+toggle_mode = true
+button_group = SubResource("HullChoices")
+icon = ExtResource("4_manta")
+icon_alignment = 1
+expand_icon = true
+accessibility_name = "Manta"
+accessibility_description = "Crescent wing  /  Outboard drives"
+
+[node name="Gemini" type="Button" parent="Selector/Choices"]
+custom_minimum_size = Vector2(64, 44)
+focus_mode = 0
+theme_type_variation = &"HullThumb"
+toggle_mode = true
+button_group = SubResource("HullChoices")
+icon = ExtResource("5_gemini")
+icon_alignment = 1
+expand_icon = true
+accessibility_name = "Gemini"
+accessibility_description = "Twin prows  /  Bridged cockpit"
+
+[node name="Launch" type="Button" parent="."]
+oversampling_with_scale = true
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 46)
+theme_type_variation = &"LaunchButton"
+text = "LAUNCH"

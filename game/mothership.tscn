@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://game/mothership.gd" id="1_mother"]
+[ext_resource type="PackedScene" path="res://assets/models/mothership.glb" id="2_carrier"]
+[ext_resource type="AudioStream" path="res://assets/audio/flyby-02.ogg" id="3_arrival"]
+[ext_resource type="AudioStream" path="res://assets/audio/carrier-pulse.ogg" id="4_pulse"]
+[ext_resource type="Shader" path="res://game/flame.gdshader" id="5_flame"]
+
+[sub_resource type="ShaderMaterial" id="ExhaustMaterial"]
+shader = ExtResource("5_flame")
+shader_parameter/hot = Color(0.40, 0.77, 1.0, 1)
+
+[sub_resource type="BoxMesh" id="ExhaustMesh"]
+material = SubResource("ExhaustMaterial")
+size = Vector3(2.2, 1, 2.2)
+
+[sub_resource type="StandardMaterial3D" id="PulseMaterial"]
+shading_mode = 0
+albedo_color = Color(4.2, 1.6, 0.38, 1)
+
+[sub_resource type="BoxMesh" id="BeamMesh"]
+material = SubResource("PulseMaterial")
+size = Vector3(1, 1, 1)
+
+[sub_resource type="SphereMesh" id="ChargeMesh"]
+material = SubResource("PulseMaterial")
+radius = 0.5
+height = 1.0
+radial_segments = 12
+rings = 6
+
+[node name="Mothership" type="Node3D"]
+visible = false
+script = ExtResource("1_mother")
+
+[node name="Carrier" parent="." instance=ExtResource("2_carrier")]
+
+[node name="Drives" type="Node3D" parent="Carrier"]
+position = Vector3(0, -0.04, 12.65)
+
+[node name="PortOuter" type="MeshInstance3D" parent="Carrier/Drives"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 3.8, 0, -5.37, 0, 0)
+cast_shadow = 0
+extra_cull_margin = 7.0
+mesh = SubResource("ExhaustMesh")
+
+[node name="PortInner" type="MeshInstance3D" parent="Carrier/Drives"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 3.8, 0, -4.03, 0, 0)
+cast_shadow = 0
+extra_cull_margin = 7.0
+mesh = SubResource("ExhaustMesh")
+
+[node name="StarboardInner" type="MeshInstance3D" parent="Carrier/Drives"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 3.8, 0, 4.03, 0, 0)
+cast_shadow = 0
+extra_cull_margin = 7.0
+mesh = SubResource("ExhaustMesh")
+
+[node name="StarboardOuter" type="MeshInstance3D" parent="Carrier/Drives"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 3.8, 0, 5.37, 0, 0)
+cast_shadow = 0
+extra_cull_margin = 7.0
+mesh = SubResource("ExhaustMesh")
+
+[node name="Arrival" type="AudioStreamPlayer3D" parent="Carrier"]
+stream = ExtResource("3_arrival")
+attenuation_model = 3
+volume_db = -1.0
+pitch_scale = 0.58
+panning_strength = 1.5
+bus = &"SFX"
+
+[node name="Discharge" type="AudioStreamPlayer3D" parent="Carrier"]
+stream = ExtResource("4_pulse")
+attenuation_model = 3
+volume_db = -2.0
+panning_strength = 1.4
+bus = &"SFX"
+
+[node name="Battery" type="AudioStreamPlayer3D" parent="Carrier"]
+stream = ExtResource("4_pulse")
+attenuation_model = 3
+volume_db = -8.0
+max_polyphony = 4
+panning_strength = 1.4
+bus = &"SFX"
+
+[node name="Beam" type="MeshInstance3D" parent="."]
+visible = false
+cast_shadow = 0
+mesh = SubResource("BeamMesh")
+
+[node name="Charge" type="MeshInstance3D" parent="."]
+visible = false
+cast_shadow = 0
+mesh = SubResource("ChargeMesh")
