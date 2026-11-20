@@ -1,0 +1,66 @@
+name: Release builds
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Install Godot and export templates
+        env:
+          GODOT_VERSION: 4.7.2
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable"
+          editor="Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          curl -fL --retry 3 "$base/$editor.zip" -o editor.zip
+          curl -fL --retry 3 "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz" -o templates.tpz
+          sha256sum --check <<'SUMS'
+          cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  editor.zip
+          f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  templates.tpz
+          SUMS
+          mkdir -p godot-bin
+          unzip -q editor.zip -d godot-bin
+          mv "godot-bin/$editor" godot-bin/godot
+          echo "$PWD/godot-bin" >> "$GITHUB_PATH"
+          templates="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$templates"
+          unzip -qj templates.tpz 'templates/linux_release.x86_64' 'templates/windows_release_x86_64*.exe' \
+            'templates/web_nothreads_release.zip' 'templates/version.txt' -d "$templates"
+
+      - name: Export and package the game
+        run: |
+          mkdir -p build/{linux,windows,web,release}
+          touch build/.gdignore
+          godot --headless --import
+          godot --headless --export-release Linux
+          godot --headless --export-release Windows
+          godot --headless --export-release Web
+          tar -czf build/release/delta-warp-linux-x86_64.tar.gz -C build/linux delta-warp.x86_64
+          (cd build/windows && zip -q ../release/delta-warp-windows-x86_64.zip delta-warp.exe)
+          (cd build/web && zip -qr ../release/delta-warp-web.zip .)
+
+      - name: Publish downloads to GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          if ! gh release view "$tag" > /dev/null; then
+            gh release create "$tag" --verify-tag --draft --title "Delta Warp $tag" \
+              --notes "Download and extract the archive for your platform. On Windows or Linux, open the game executable. For the Web build, serve the extracted files over HTTP."
+          fi
+          gh release upload "$tag" build/release/* --clobber
+          draft=$(gh release view "$tag" --json isDraft --jq .isDraft)
+          if [[ "$draft" == true ]]; then
+            gh release edit "$tag" --draft=false
+          fi
